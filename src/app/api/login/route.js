@@ -146,13 +146,19 @@ export async function POST(req) {
 
     // Use Mongoose model instead of db.collection
     const user = await User.findOne({ email });
+    console.log("user",user)
 
     if (!user) {
       return NextResponse.json({ message: "Invalid email or password" }, { status: 401 });
     }
 
     // Compare passwords
+    console.log("Entered Password:", password);  // Logs the raw password entered by the user
+    console.log("Stored Hashed Password:", user.password); 
     const isMatch = await bcrypt.compare(password, user.password);
+
+    console.log("ismatch",isMatch)
+    console.log()
     if (!isMatch) {
       return NextResponse.json({ message: "Invalid email or password" }, { status: 401 });
     }
