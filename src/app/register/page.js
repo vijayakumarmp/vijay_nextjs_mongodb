@@ -77,7 +77,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="flex justify-center mb-4">
           <img src="/logo.png" alt="Logo" width={32} height={26} style={{ maxHeight: "32px" }} />
-          <span className="text-2xl font-bold text-center mb-4" style={{ padding: "0px 10px 0px 5px", lineHeight: "30px" }}>Register</span>
+          <span className="text-2xl font-bold text-center pr-2 pl-2 mb-4" style={{ lineHeight: "30px" }}>Register</span>
         </div>
 
         {/* Error Message */}

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DailyCheckupForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     patientId: "",
     name: "",
@@ -20,7 +22,7 @@ export default function DailyCheckupForm() {
         const token = localStorage.getItem("token");
         if (!token) {
           console.error("No token found, user might not be logged in.");
-          return;
+          return router.push("/login");
         }
 
         const response = await fetch("/api/users", {
@@ -135,9 +137,8 @@ export default function DailyCheckupForm() {
               name={name}
               value={formData[name]}
               onChange={handleChange}
-              className={`w-full p-2 border ${
-                readOnly ? "bg-gray-100" : ""
-              } rounded mb-4`}
+              className={`w-full p-2 border ${readOnly ? "bg-gray-100" : ""
+                } rounded mb-4`}
               readOnly={readOnly}
               required={!readOnly}
             />
@@ -154,7 +155,7 @@ export default function DailyCheckupForm() {
       <table className="w-full mt-4 border border-collapse">
         <thead>
           <tr className="bg-gray-200">
-            {["Patient ID", "Name", "Age", "BP", "Temperature", "Pulse", "Date"].map(
+            {["Patient ID", "Name", "Age", "BP", "Temperature", "Pulse", "Date & Day", "Time"].map(
               (header) => (
                 <th key={header} className="border p-2">
                   {header}
@@ -165,31 +166,40 @@ export default function DailyCheckupForm() {
         </thead>
         <tbody>
           {checkupRecords.length > 0 ? (
-            checkupRecords.map((record, index) => (
-              <tr key={index} className="border">
-                {[
-                  record.patientId,
-                  record.name,
-                  record.age,
-                  record.bp,
-                  record.temperature,
-                  record.pulse,
-                  new Date(record.date).toLocaleDateString(),
-                ].map((value, idx) => (
-                  <td key={idx} className="border p-2">
-                    {value}
-                  </td>
-                ))}
-              </tr>
-            ))
+            checkupRecords.map((record, index) => {
+              const dateObj = new Date(record.date);
+              const formattedDate = dateObj.toLocaleDateString();
+              const formattedDay = dateObj.toLocaleDateString(undefined, { weekday: "long" });
+              const formattedTime = dateObj.toLocaleTimeString();
+
+              return (
+                <tr key={index} className="border">
+                  {[
+                    record.patientId,
+                    record.name,
+                    record.age,
+                    record.bp,
+                    record.temperature,
+                    record.pulse,
+                    `${formattedDate} (${formattedDay})`,
+                    formattedTime,
+                  ].map((value, idx) => (
+                    <td key={idx} className="border p-2">
+                      {value}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })
           ) : (
             <tr>
-              <td colSpan="7" className="border p-2 text-center">
+              <td colSpan="8" className="border p-2 text-center">
                 No records found
               </td>
             </tr>
           )}
         </tbody>
+
       </table>
     </div>
   );

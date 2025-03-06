@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const [latestCheckup, setLatestCheckup] = useState(null);
@@ -10,7 +11,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentUserPatientId, setCurrentUserPatientId] = useState(null);
-
+  const router = useRouter();
   useEffect(() => {
     async function fetchUserAndCheckupData() {
       try {
@@ -19,7 +20,7 @@ export default function DashboardPage() {
         const token = localStorage.getItem("token");
         if (!token) {
           console.error("No token found, user might not be logged in.");
-          return;
+          return router.push("/login");
         }
 
         // 🔹 Fetch current user data (assuming there's an endpoint for this)

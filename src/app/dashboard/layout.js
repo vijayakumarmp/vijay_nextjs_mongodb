@@ -14,6 +14,7 @@ export default function DashboardLayout({ children }) {
       <aside className="w-64 bg-gray-900 text-white flex flex-col p-4 space-y-4">
         <h2 className="text-xl font-bold">Dashboard</h2>
         <nav className="space-y-2">
+          <a href="/dashboard" className="block px-4 py-2 rounded hover:bg-gray-700">Home</a>
           <a href="/dashboard/profile" className="block px-4 py-2 rounded hover:bg-gray-700">Profile</a>
           <a href="/dashboard/medicine-trips" className="block px-4 py-2 rounded hover:bg-gray-700">Medicine Trips</a>
           <a href="/dashboard/daily-checkup" className="block px-4 py-2 rounded hover:bg-gray-700">Daily Checkup</a>

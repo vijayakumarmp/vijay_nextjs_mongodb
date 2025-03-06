@@ -52,10 +52,11 @@ export default function Login() {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img src="/logo.png" alt="Logo" className="h-10" />
+           {/* Title */}
+        <span className="text-2xl font-bold text-center pl-2 mb-4">Login</span>
         </div>
 
-        {/* Title */}
-        <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
+       
 
         {/* Error Message */}
         {error && <p className="text-red-500 text-center">{error}</p>}
