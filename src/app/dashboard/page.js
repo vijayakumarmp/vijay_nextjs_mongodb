@@ -16,8 +16,21 @@ export default function DashboardPage() {
       try {
         setLoading(true);
 
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found, user might not be logged in.");
+          return;
+        }
+
         // 🔹 Fetch current user data (assuming there's an endpoint for this)
-        const userResponse = await fetch("/api/users"); // Adjust if needed
+        //const userResponse = await fetch("/api/users"); // Adjust if needed
+        const userResponse = await fetch("/api/users", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         const userData = await userResponse.json();
         
         if (!userData || !userData.patientId) {
@@ -33,7 +46,23 @@ export default function DashboardPage() {
         console.log("Current User Patient ID:", userPatientId);
 
         // 🔹 Fetch Checkup Data
-        const checkupResponse = await fetch("/dashboard/dailycheckup");
+        
+        //const checkupResponse = await fetch("/api/dailycheckup");
+        //const token = localStorage.getItem("token");
+        // if (!token) {
+        //   console.error("No token found, user might not be logged in.");
+        //   return;
+        // }
+
+        // 🔹 Fetch current user data (assuming there's an endpoint for this)
+        //const userResponse = await fetch("/api/users"); // Adjust if needed
+        const checkupResponse = await fetch("/api/dailycheckup", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         const checkupData = await checkupResponse.json();
 
         console.log("API Checkup Response:", checkupData);
@@ -145,7 +174,7 @@ export default function DashboardPage() {
         <div className="mt-6 p-4 bg-yellow-100 rounded-lg text-center">
           <p className="text-yellow-700 font-semibold">⚠️ No checkup data available for your account.</p>
           <p>💡 Tip: Regular checkups help track your health status.</p>
-          <a href="/daily-checkup" className="text-blue-500 underline font-medium">
+          <a href="dashboard/daily-checkup" className="text-blue-500 underline font-medium">
             ➡️ Configure your health checkup now
           </a>
         </div>

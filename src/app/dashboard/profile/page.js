@@ -101,12 +101,10 @@ export default function ProfilePage() {
 
         <table className="w-full border-collapse border border-gray-300">
           <tbody>
-            {user?._id && (
-              <tr className="border-b">
-                <td className="p-2 font-semibold bg-gray-100">User ID</td>
-                <td className="p-2">{user._id}</td>
-              </tr>
-            )}
+            <tr className="border-b">
+              <td className="p-2 font-semibold bg-gray-100">Patient ID</td>
+              <td className="p-2">{user?.patientId || "N/A"}</td>
+            </tr>
             <tr className="border-b">
               <td className="p-2 font-semibold bg-gray-100">Name</td>
               <td className="p-2">
