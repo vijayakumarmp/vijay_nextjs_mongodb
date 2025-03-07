@@ -8,23 +8,19 @@ import { useRouter } from "next/navigation";
 export default function DashboardPage() {
   const [latestCheckup, setLatestCheckup] = useState(null);
   const [chartOptions, setChartOptions] = useState(null);
+  const [barChartOptions, setBarChartOptions] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentUserPatientId, setCurrentUserPatientId] = useState(null);
+  const [checkupRecords, setCheckupRecords] = useState([]);
   const router = useRouter();
+
   useEffect(() => {
     async function fetchUserAndCheckupData() {
       try {
         setLoading(true);
-
         const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found, user might not be logged in.");
-          return router.push("/login");
-        }
+        if (!token) return router.push("/login");
 
-        // 🔹 Fetch current user data (assuming there's an endpoint for this)
-        //const userResponse = await fetch("/api/users"); // Adjust if needed
         const userResponse = await fetch("/api/users", {
           method: "GET",
           headers: {
@@ -33,30 +29,10 @@ export default function DashboardPage() {
           },
         });
         const userData = await userResponse.json();
-        
-        if (!userData || !userData.patientId) {
-          console.warn("No valid user data found.");
-          setError("User data unavailable.");
-          setLoading(false);
-          return;
-        }
+        if (!userData || !userData.patientId) return;
 
         const userPatientId = userData.patientId;
-        setCurrentUserPatientId("userPatientId",userPatientId);
 
-        console.log("Current User Patient ID:", userPatientId);
-
-        // 🔹 Fetch Checkup Data
-        
-        //const checkupResponse = await fetch("/api/dailycheckup");
-        //const token = localStorage.getItem("token");
-        // if (!token) {
-        //   console.error("No token found, user might not be logged in.");
-        //   return;
-        // }
-
-        // 🔹 Fetch current user data (assuming there's an endpoint for this)
-        //const userResponse = await fetch("/api/users"); // Adjust if needed
         const checkupResponse = await fetch("/api/dailycheckup", {
           method: "GET",
           headers: {
@@ -66,37 +42,23 @@ export default function DashboardPage() {
         });
         const checkupData = await checkupResponse.json();
 
-        console.log("API Checkup Response:", checkupData);
-
-        if (!checkupData || !Array.isArray(checkupData.checkupRecords)) {
-          console.warn("No checkup records found.");
-          setLatestCheckup(null);
-          setChartOptions(getNoDataChart());
-          return;
-        }
-
-        // 🔹 Filter Checkups for the Current User
         const userCheckups = checkupData.checkupRecords.filter(
           (record) => record.patientId === userPatientId
         );
-
-        console.log("Filtered Checkups for User:", userCheckups);
+        setCheckupRecords(userCheckups);
 
         if (userCheckups.length === 0) {
-          console.warn("No checkup data available for this user.");
-          setLatestCheckup(null);
           setChartOptions(getNoDataChart());
+          setBarChartOptions(getNoDataBarChart());
           return;
         }
 
-        // 🔹 Get the Latest Checkup Entry
         const latest = userCheckups[userCheckups.length - 1];
         setLatestCheckup(latest);
         updateChart(latest);
+        updateBarChart(userCheckups);
       } catch (err) {
-        console.error("Error fetching data:", err);
         setError("Failed to load data.");
-        setChartOptions(getNoDataChart());
       } finally {
         setLoading(false);
       }
@@ -114,25 +76,41 @@ export default function DashboardPage() {
   function updateChart(checkup) {
     if (!checkup) return;
 
-    const bpStatus = getStatus(checkup.bp, [90, 120], [121, 140]);
-    const tempStatus = getStatus(checkup.temperature, [36, 37.5], [37.6, 39]);
-    const pulseStatus = getStatus(checkup.pulse, [60, 100], [101, 120]);
-
     const data = [
-      { name: "Blood Pressure", y: 1, status: bpStatus, color: getColor(bpStatus) },
-      { name: "Temperature", y: 1, status: tempStatus, color: getColor(tempStatus) },
-      { name: "Pulse", y: 1, status: pulseStatus, color: getColor(pulseStatus) },
+      { name: "Blood Pressure", y: 1, status: getStatus(checkup.bp, [90, 120], [121, 140]) },
+      { name: "Temperature", y: 1, status: getStatus(checkup.temperature, [36, 37.5], [37.6, 39]) },
+      { name: "Pulse", y: 1, status: getStatus(checkup.pulse, [60, 100], [101, 120]) },
     ];
-
-    console.log("Updated Chart Data:", data);
 
     setChartOptions({
       chart: { type: "pie" },
       title: { text: "Health Checkup Overview" },
-      series: [{ name: "Status", data }],
-      tooltip: {
-        pointFormat: "<b>{point.status}</b>",
+      plotOptions: {
+        pie: { innerSize: "50%", dataLabels: { enabled: true } },
       },
+      series: [{ name: "Status", data }],
+    });
+  }
+
+  function updateBarChart(checkups) {
+    if (checkups.length === 0) {
+      setBarChartOptions(getNoDataBarChart());
+      return;
+    }
+
+    const statusCounts = { Normal: 0, Critical: 0, Danger: 0 };
+    checkups.forEach((c) => {
+      statusCounts[getStatus(c.bp, [90, 120], [121, 140])]++;
+      statusCounts[getStatus(c.temperature, [36, 37.5], [37.6, 39])]++;
+      statusCounts[getStatus(c.pulse, [60, 100], [101, 120])]++;
+    });
+
+    setBarChartOptions({
+      chart: { type: "column" },
+      title: { text: "Daily Checkup Report" },
+      xAxis: { categories: ["Normal", "Critical", "Danger"] },
+      yAxis: { title: { text: "Count" } },
+      series: [{ name: "Checkups", data: Object.values(statusCounts) }],
     });
   }
 
@@ -140,56 +118,66 @@ export default function DashboardPage() {
     return {
       chart: { type: "pie" },
       title: { text: "No Checkup Data Available" },
-      series: [
-        {
-          name: "No Data",
-          data: [{ name: "No Records", y: 100, color: "#cccccc" }],
-        },
-      ],
+      series: [{ name: "No Data", data: [{ name: "No Records", y: 100, color: "#cccccc" }] }],
     };
   }
 
-  function getColor(status) {
-    return status === "Normal" ? "green" : status === "Critical" ? "yellow" : "red";
+  function getNoDataBarChart() {
+    return {
+      chart: { type: "column" },
+      title: { text: "No Checkup Data Available" },
+      series: [{ name: "No Data", data: [0, 0, 0] }],
+    };
   }
 
-  console.log("Loading:", loading);
-  console.log("Latest Checkup Data:", latestCheckup);
-
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-      <h1 className="text-2xl font-bold">Welcome to Your Dashboard</h1>
-      <p className="text-gray-600">Manage your profile, medicine trips, and daily checkups here.</p>
+    <div className="w-full min-h-screen p-6 bg-gray-100">
+      <h1 className="text-3xl font-bold">Welcome to Your Dashboard</h1>
+      <p className="text-gray-600">Manage your profile and checkups here.</p>
 
-      <div className="mt-6">
-        {loading ? (
-          <p>Loading chart...</p>
-        ) : chartOptions ? (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="bg-white p-6 shadow-md rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">Health Overview</h3>
           <HighchartsReact highcharts={Highcharts} options={chartOptions} />
-        ) : (
-          <p className="text-red-600">Error loading chart.</p>
-        )}
+        </div>
+
+        <div className="bg-white p-6 shadow-md rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">Checkup Summary</h3>
+          <HighchartsReact highcharts={Highcharts} options={barChartOptions} />
+        </div>
       </div>
 
-      {!loading && (!latestCheckup || currentUserPatientId === null) && (
-        <div className="mt-6 p-4 bg-yellow-100 rounded-lg text-center">
-          <p className="text-yellow-700 font-semibold">⚠️ No checkup data available for your account.</p>
-          <p>💡 Tip: Regular checkups help track your health status.</p>
-          <a href="dashboard/daily-checkup" className="text-blue-500 underline font-medium">
-            ➡️ Configure your health checkup now
-          </a>
+      <div className="bg-white p-6 shadow-md rounded-lg mt-6">
+        <h3 className="text-lg font-semibold">Checkup Records</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-300 mt-4">
+            <thead>
+              <tr className="bg-gray-200 text-left">
+                <th className="border p-3">Date</th>
+                <th className="border p-3">Blood Pressure</th>
+                <th className="border p-3">Temperature</th>
+                <th className="border p-3">Pulse</th>
+              </tr>
+            </thead>
+            <tbody>
+              {checkupRecords.length > 0 ? (
+                checkupRecords.map((record, index) => (
+                  <tr key={index} className="border">
+                    <td className="border p-3">{new Date(record.date).toLocaleDateString()}</td>
+                    <td className="border p-3">{record.bp}</td>
+                    <td className="border p-3">{record.temperature}°C</td>
+                    <td className="border p-3">{record.pulse}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="border p-3 text-center" colSpan="4">No checkup records available</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
-
-      {latestCheckup && (
-        <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-          <h3 className="text-lg font-semibold">Last Checkup Data</h3>
-          <p>📅 Date: {new Date(latestCheckup.date).toLocaleDateString()}</p>
-          <p>🩸 Blood Pressure: {latestCheckup.bp} ({getStatus(latestCheckup.bp, [90, 120], [121, 140])})</p>
-          <p>🌡 Temperature: {latestCheckup.temperature}°C ({getStatus(latestCheckup.temperature, [36, 37.5], [37.6, 39])})</p>
-          <p>❤️ Pulse: {latestCheckup.pulse} ({getStatus(latestCheckup.pulse, [60, 100], [101, 120])})</p>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

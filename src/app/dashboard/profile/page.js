@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FaUserCircle, FaEdit } from "react-icons/fa";
+import { Divide } from "lucide-react";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -38,8 +40,6 @@ export default function ProfilePage() {
         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
 
         const data = await res.json();
-        console.log("Profile Data:", data);
-
         setUser(data.user);
         setFormData({
           name: data.user.name || "",
@@ -48,7 +48,6 @@ export default function ProfilePage() {
           phone: data.user.phone || "",
         });
       } catch (error) {
-        console.error("Profile Fetch Error:", error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -69,7 +68,6 @@ export default function ProfilePage() {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: {
@@ -82,11 +80,9 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
 
       const updatedUser = await res.json();
-
-      setUser(updatedUser.user); // Update state with new values
+      setUser(updatedUser.user);
       setIsEditing(false);
     } catch (error) {
-      console.error("Update Error:", error);
       setError(error.message);
     }
   };
@@ -95,9 +91,19 @@ export default function ProfilePage() {
   if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-lg">
-        <h2 className="text-2xl font-bold text-center mb-4">User Profile</h2>
+    <div className="flex items-start justify-center min-h-screen bg-gray-100 p-6">
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full ">
+        {/* Profile Icon and Edit Button */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-5xl " >
+              <img src="../avator.png"  width="128px" height="128px"/>
+            </div>
+          <button className="flex items-center text-blue-500" onClick={handleEdit}>
+            <FaEdit className="mr-2" /> Edit Profile
+          </button>
+        </div>
+
+        <h2 className="text-2xl font-bold mb-4">User Profile</h2>
 
         <table className="w-full border-collapse border border-gray-300">
           <tbody>
@@ -172,17 +178,13 @@ export default function ProfilePage() {
           </tbody>
         </table>
 
-        <div className="flex justify-center mt-4">
-          {isEditing ? (
-            <button className="bg-green-500 text-white px-4 py-2 rounded mr-2" onClick={handleSave}>
+        {isEditing && (
+          <div className="flex justify-center mt-4">
+            <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleSave}>
               Save
             </button>
-          ) : (
-            <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleEdit}>
-              Edit Profile
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
