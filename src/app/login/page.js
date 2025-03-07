@@ -53,6 +53,7 @@ export default function Login() {
         <div className="flex justify-center mb-6">
           <img src="/logo.png" alt="Logo" className="h-10" />
            {/* Title */}
+          <span className="text-2xl font-bold text-center pl-2 mb-4">Login</span>
         </div>
 
        
