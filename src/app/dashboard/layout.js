@@ -28,8 +28,7 @@ export default function DashboardLayout({ children }) {
 
         {/* Profile Image */}
         <div className="flex  mt-4">
-          <img src="../avator.png" alt="Profile" className="w-8 h-8 rounded-full" /> {menuOpen && <span className="p-1 items-center " >Kavin</span>
-}        </div>
+         </div>
 
         {/* Navigation Menu */}
         <nav className="mt-6 space-y-4">
@@ -45,7 +44,7 @@ export default function DashboardLayout({ children }) {
           <a href="/dashboard/daily-checkup" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
             <FaClipboardList /> {menuOpen && <span>Daily Check</span>}
           </a>
-          <a href="#" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+          <a href="/dashboard/tips" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
             <FaLightbulb /> {menuOpen && <span>Tips</span>}
           </a>
         </nav>

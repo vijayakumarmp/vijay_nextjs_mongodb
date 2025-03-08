@@ -95,8 +95,8 @@ export default function ProfilePage() {
       <div className="bg-white shadow-lg rounded-lg p-6 w-full ">
         {/* Profile Icon and Edit Button */}
         <div className="flex justify-between items-center mb-4">
-          <div className="text-5xl " >
-              <img src="../avator.png"  width="128px" height="128px"/>
+          <div className="text-5xl " >  
+              
             </div>
           <button className="flex items-center text-blue-500" onClick={handleEdit}>
             <FaEdit className="mr-2" /> Edit Profile

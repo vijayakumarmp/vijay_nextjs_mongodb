@@ -5,7 +5,7 @@ import User from "../../../../models/User";
 
 export async function GET(req) {
   try {
-    const authHeader = req.headers.get("Authorization");
+    const authHeader = req.headers.get("Authorization");  
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

@@ -28,8 +28,8 @@ export async function POST(req) {
     console.log("Stored Hashed Password:", user.password); 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    console.log("ismatch",isMatch)
-    console.log()
+    console.log("ismatch",isMatch) 
+    console.log() 
     if (!isMatch) {
       return NextResponse.json({ message: "Invalid email or password" }, { status: 401 });
     }

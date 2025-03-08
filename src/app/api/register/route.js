@@ -11,9 +11,9 @@ export async function POST(req) {
     // ✅ Check for missing fields
     if (!name || !age || !email || !password || !phone || !address) {
       return NextResponse.json({ message: "All fields are required." }, { status: 400 });
-    }
+    }  
 
-    // ✅ Connect to MongoDB
+    // ✅ Connect to MongoDB   
     await connectToDatabase();
 
     // ✅ Check if the user already exists

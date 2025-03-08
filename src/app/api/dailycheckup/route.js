@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "../../../../lib/mongodb";
 import User from "../../../../models/User"; // Import the User model
 import DailyCheckup from "../../../../models/DailyCheckup";
-
+ 
 export async function POST(req) {
   try {
     const body = await req.json();
