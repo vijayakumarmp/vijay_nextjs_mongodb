@@ -6,7 +6,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       {/* Top Menu */}
       <header className="bg-blue-600 text-white py-4 px-6 flex justify-between items-center shadow-md">
-        <h1 className="text-xl font-bold">Welcome to Our Hospital</h1>
+        <h1 className="text-xl font-bold">Welcome to HealthCare</h1>
         <nav>
           <Link href="/login" className="mr-4 hover:underline">
            Login 
@@ -25,20 +25,13 @@ export default function Home() {
             <h3 className="text-lg font-semibold">Daily Checkup</h3>
             <p>Regular health checkups to monitor your well-being.</p>
           </div>
-          <div className="p-6 border rounded-lg shadow-md bg-white">
-            <h3 className="text-lg font-semibold">Medicine Tips</h3>
-            <p>Expert advice on medication and prescriptions.</p>
-          </div>
-          <div className="p-6 border rounded-lg shadow-md bg-white">
-            <h3 className="text-lg font-semibold">Healthy Living Tips</h3>
-            <p>Guidance on maintaining a healthy lifestyle.</p>
-          </div>
+          
         </div>
       </main>
 
       {/* Footer */}
       <footer className="bg-gray-800 text-white text-center py-4 mt-6">
-        <p>© {new Date().getFullYear()} All Rights Reserved | Our Hospital</p>
+        <p>© {new Date().getFullYear()} All Rights Reserved | HealthCare</p>
       </footer>
     </div>
   );
